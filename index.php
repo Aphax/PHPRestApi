@@ -15,9 +15,12 @@ require_once 'controllers/Song.php';
 require_once 'controllers/UserSong.php';
 require_once 'models/Model.php';
 require_once 'models/User.php';
+require_once 'models/Song.php';
 require_once 'exceptions/RestServerForbiddenException.php';
+require_once 'exceptions/RestServerNotFoundException.php';
 
 use Aphax\RestServer;
+use Aphax\exceptions\RestServerNotFoundException;
 use Aphax\exceptions\RestServerForbiddenException;
 
 spl_autoload_register('autoload');
@@ -30,8 +33,10 @@ try {
     $server = new RestServer();
     $server->callAction();
     echo $server->getResponse();
-} catch (HttpMalformedHeadersException $e) {
-    echo $server->getResponseException($e);
 } catch (RestServerForbiddenException $e) {
     echo $server->getResponseForbidden($e);
+} catch (RestServerNotFoundException $e) {
+    echo $server->getResponseNotFound($e);
+} catch (\Exception $e) {
+    echo $server->getResponseException($e);
 }

@@ -2,16 +2,19 @@
 /**
  * Created by PhpStorm.
  * User: Aphax
- * Date: 25/04/2015
- * Time: 16:00
+ * Date: 27/04/2015
+ * Time: 00:24
  */
 
 namespace Aphax\controllers;
 
-class Song extends RestController {
-    public function read($id)
-    {
-        parent::read($id);
-    }
 
+use Aphax\RestServer;
+
+class Song extends RestController {
+    function __construct(RestServer $server)
+    {
+        parent::__construct($server);
+        $this->model = new \Aphax\models\Song();
+    }
 }

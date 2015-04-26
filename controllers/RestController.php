@@ -15,7 +15,7 @@ use Aphax\RestServer;
  * Class RestController
  * @package Aphax\controllers
  */
-class RestController {
+abstract class RestController {
     /**
      * @var RestServer
      */
@@ -39,6 +39,9 @@ class RestController {
      */
     public function getModel()
     {
+        if (empty($this->model)) {
+            return $this->server->getUriPart(0);
+        }
         return $this->model;
     }
 
@@ -59,7 +62,7 @@ class RestController {
             $model->setFieldValue($name, $data[$name]);
         }
         $model->create();
-        $this->server->appendResponse(lcfirst(get_called_class()), $model->getFieldsValues());
+        $this->server->appendResponse($model->getTableName(), $model->getFieldsValues());
     }
 
     /**
@@ -74,12 +77,21 @@ class RestController {
 
     /**
      * @param $id
-     * @param array $params
+     * @param array $data
+     * @throws RestServerForbiddenException
      */
-    public function update($id, array $params)
+    public function update($id, array $data)
     {
-        $this->server->appendResponse('UPDATE ID', $id);
-        $this->server->appendResponse('UPDATE params', $params);
+        $model = $this->getModel();
+        $model->read($id);
+        $fields = $model->getFields();
+        foreach ($data as $name => $params) {
+            if (isset($fields[$name])) {
+                $model->setFieldValue($name, $data[$name]);
+            }
+        }
+        $model->update();
+        $this->server->appendResponse('updated', $model->getFieldsValues());
     }
 
     /**
@@ -87,6 +99,9 @@ class RestController {
      */
     public function delete($id)
     {
-        $this->server->appendResponse('DELETE ID', $id);
+        $model = $this->getModel();
+        $model->read($id);
+        $this->server->appendResponse('deleted', $model->getFieldsValues());
+        $model->delete($id);
     }
 }

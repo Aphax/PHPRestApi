@@ -10,6 +10,7 @@ namespace Aphax\models;
 
 
 use Aphax\exceptions\RestServerForbiddenException;
+use Aphax\exceptions\RestServerNotFoundException;
 
 abstract class Model {
     /**
@@ -67,22 +68,18 @@ abstract class Model {
             $this->getFieldsInsertDeclaration(),
             $this->getFieldsInsertValues()
         );
-        $server->appendResponse('Model.create', $request);
-        try {
-            $stmt = self::$db->prepare($request);
-            $success = $stmt->execute();
-            $server->appendResponse('success', $success);
-            if ($this->hasPrimaryKey()) {
-                $this->setPrimaryKeyValue(self::$db->lastInsertId());
-            }
-        } catch (\PDOException $e) {
-            $server->appendResponse('pdoexception', $e->getMessage());
+        $stmt = self::$db->prepare($request);
+        $success = $stmt->execute();
+        $server->appendResponse('success', $success);
+        if ($this->hasPrimaryKey()) {
+            $this->setPrimaryKeyValue(self::$db->lastInsertId());
         }
+        return $success;
     }
 
-    public function delete()
+    public function delete($id)
     {
-
+        return self::$db->exec('DELETE FROM `' . $this->getTableName() . '` WHERE `' . $this->getPrimaryKey() . '`=' . ((int)$id));
     }
 
     /**
@@ -171,11 +168,6 @@ abstract class Model {
         $this->fields = $fields;
     }
 
-    public function save()
-    {
-
-    }
-
     /**
      * @return array
      */
@@ -197,14 +189,22 @@ abstract class Model {
     }
 
     /**
+     * @return mixed
+     */
+    public function getPrimaryKeyValue()
+    {
+        return $this->getFieldValue($this->getPrimaryKey());
+    }
+
+    /**
      * @param $id
-     * @throws RestServerForbiddenException
+     * @throws RestServerNotFoundException
      */
     public function read($id)
     {
         $row = self::$db->query('SELECT * FROM `' . $this->getTableName() . '` WHERE `' . $this->getPrimaryKey() . '`=' . $id)->fetch(\PDO::FETCH_ASSOC);
         if (!$row) {
-            throw new RestServerForbiddenException("La ressource demandée n'existe pas !");
+            throw new RestServerNotFoundException();
         }
         foreach ($row as $field => $value) {
             $this->setFieldValue($field, $value);
@@ -227,8 +227,29 @@ abstract class Model {
         $this->fields[$this->getPrimaryKey()]['value'] = $lastInsertId;
     }
 
+    /**
+     * @return bool
+     */
     public function update()
     {
+        $buffer = array();
+        $fields = $this->fields;
+        unset($fields[$this->primaryKey]);
+        foreach ($fields as $name => $params) {
+            $buffer[] = '`'.$name.'`='. ($params['type'] == 'string' ? self::$db->quote($params['value']) : $params['value']);
+        }
 
+        global $server;
+        $request = sprintf('UPDATE `%s` SET %s WHERE `%s`=%d',
+            $this->getTableName(),
+            implode(',', $buffer),
+            $this->getPrimaryKey(),
+            $this->getPrimaryKeyValue()
+        );
+        $stmt = self::$db->prepare($request);
+        $success = $stmt->execute();
+        $server->appendResponse('request', $request);
+        $server->appendResponse('success', $success);
+        return $success;
     }
 }
