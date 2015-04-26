@@ -200,7 +200,10 @@ class RestServer {
      */
     public function getUriPart($index)
     {
-        return $this->uriparts[$index];
+        if (isset($this->uriparts[$index])) {
+            return $this->uriparts[$index];
+        }
+        return NULL;
     }
 
     /**

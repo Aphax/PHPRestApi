@@ -8,21 +8,13 @@
 
 namespace Aphax\controllers;
 
-class UserSong extends RestController {
-    public function create(array $params)
-    {
-        parent::create($params);
-    }
+use Aphax\RestServer;
 
-    public function read($id)
+class Usersong extends RestController {
+    function __construct(RestServer $server)
     {
-        parent::read($id);
+        parent::__construct($server);
+        $this->model = new \Aphax\models\UserSong();
     }
-
-    public function delete($id)
-    {
-        parent::delete($id);
-    }
-
 
 }

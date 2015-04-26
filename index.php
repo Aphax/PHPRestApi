@@ -16,6 +16,7 @@ require_once 'controllers/UserSong.php';
 require_once 'models/Model.php';
 require_once 'models/User.php';
 require_once 'models/Song.php';
+require_once 'models/UserSong.php';
 require_once 'exceptions/RestServerForbiddenException.php';
 require_once 'exceptions/RestServerNotFoundException.php';
 

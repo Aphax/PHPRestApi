@@ -79,6 +79,9 @@ abstract class Model {
 
     public function delete($id)
     {
+        if (!$this->hasPrimaryKey()) {
+            throw new RestServerForbiddenException('Cette ressource ne peut pas être supprimée directement');
+        }
         return self::$db->exec('DELETE FROM `' . $this->getTableName() . '` WHERE `' . $this->getPrimaryKey() . '`=' . ((int)$id));
     }
 
@@ -198,10 +201,14 @@ abstract class Model {
 
     /**
      * @param $id
+     * @throws RestServerForbiddenException
      * @throws RestServerNotFoundException
      */
     public function read($id)
     {
+        if (!$this->hasPrimaryKey()) {
+            throw new RestServerForbiddenException('Cette ressource n\'est pas accessible en lecture');
+        }
         $row = self::$db->query('SELECT * FROM `' . $this->getTableName() . '` WHERE `' . $this->getPrimaryKey() . '`=' . $id)->fetch(\PDO::FETCH_ASSOC);
         if (!$row) {
             throw new RestServerNotFoundException();
@@ -251,5 +258,33 @@ abstract class Model {
         $server->appendResponse('request', $request);
         $server->appendResponse('success', $success);
         return $success;
+    }
+
+    /**
+     * @param $id
+     * @param Model $child
+     * @return array
+     * @throws RestServerForbiddenException
+     */
+    public function getOneToManyChilds($id, Model $child)
+    {
+        if (!$this->hasPrimaryKey()) {
+            throw new RestServerForbiddenException('Cette ressource n\'est pas accessible en lecture');
+        }
+        return self::$db->query('SELECT * FROM `' . $child->getTableName() . '` WHERE `' . $this->getPrimaryKey() . '`=' . $id)->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * @param $id
+     * @param Model $child
+     * @return array
+     * @throws RestServerForbiddenException
+     */
+    public function getManyToManyChilds($id, Model $child)
+    {
+        if (!$this->hasPrimaryKey()) {
+            throw new RestServerForbiddenException('Cette ressource n\'est pas accessible en lecture');
+        }
+        return self::$db->query('SELECT * FROM `' . $this->getTableName() . '_'.$child->getTableName().'` JOIN `'.$child->getTableName().'` USING('.$child->getPrimaryKey().') WHERE `' . $this->getPrimaryKey() . '`=' . $id)->fetchAll(\PDO::FETCH_ASSOC);
     }
 }

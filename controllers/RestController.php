@@ -9,6 +9,7 @@
 namespace Aphax\controllers;
 
 use Aphax\exceptions\RestServerForbiddenException;
+use Aphax\exceptions\RestServerNotFoundException;
 use Aphax\RestServer;
 
 /**
@@ -67,12 +68,25 @@ abstract class RestController {
 
     /**
      * @param $id
+     * @throws RestServerForbiddenException
+     * @throws RestServerNotFoundException
      */
     public function read($id)
     {
         $model = $this->getModel();
-        $model->read($id);
-        $this->server->appendResponse(lcfirst($model->getTableName()), $model->getFieldsValues());
+
+        // Get a list of child resources like /parent/id/child
+        if ($this->server->getUriPart(2) !== NULL) {
+            $child = '\Aphax\models\\' . lcfirst($this->server->getUriPart(2));
+            if (!class_exists($child)) {
+                throw new RestServerNotFoundException();
+            }
+            $child = new $child();
+            $this->server->appendResponse(lcfirst($child->getTableName()), $model->getManyToManyChilds($id, $child));
+        } else {
+            $model->read($id);
+            $this->server->appendResponse(lcfirst($model->getTableName()), $model->getFieldsValues());
+        }
     }
 
     /**
