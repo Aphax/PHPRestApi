@@ -68,6 +68,7 @@ abstract class Model {
             $this->getFieldsInsertDeclaration(),
             $this->getFieldsInsertValues()
         );
+        $server->appendResponse('request', $request);
         $stmt = self::$db->prepare($request);
         $success = $stmt->execute();
         $server->appendResponse('success', $success);
@@ -206,10 +207,12 @@ abstract class Model {
      */
     public function read($id)
     {
+        global $server;
         if (!$this->hasPrimaryKey()) {
             throw new RestServerForbiddenException('Cette ressource n\'est pas accessible en lecture');
         }
         $row = self::$db->query('SELECT * FROM `' . $this->getTableName() . '` WHERE `' . $this->getPrimaryKey() . '`=' . $id)->fetch(\PDO::FETCH_ASSOC);
+
         if (!$row) {
             throw new RestServerNotFoundException();
         }

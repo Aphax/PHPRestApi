@@ -8,18 +8,6 @@
 
 error_reporting(E_ALL);
 
-require_once 'RestServer.php';
-require_once 'controllers/RestController.php';
-require_once 'controllers/User.php';
-require_once 'controllers/Song.php';
-require_once 'controllers/UserSong.php';
-require_once 'models/Model.php';
-require_once 'models/User.php';
-require_once 'models/Song.php';
-require_once 'models/UserSong.php';
-require_once 'exceptions/RestServerForbiddenException.php';
-require_once 'exceptions/RestServerNotFoundException.php';
-
 use Aphax\RestServer;
 use Aphax\exceptions\RestServerNotFoundException;
 use Aphax\exceptions\RestServerForbiddenException;
@@ -27,7 +15,9 @@ use Aphax\exceptions\RestServerForbiddenException;
 spl_autoload_register('autoload');
 function autoload($className)
 {
-//    echo "autoload : " . $className;
+    $className = str_replace("Aphax\\", "", $className);
+    $className = str_replace("\\", "/", $className);
+    require_once($className.".php");
 }
 
 try {
