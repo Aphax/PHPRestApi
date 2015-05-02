@@ -18,5 +18,9 @@ class Song extends Model {
         $this->addField('duration', 'int');
         $this->setPrimaryKey('song_id');
         $this->setTableName('song');
+        $this->setManyToMany(array(
+            'target' => 'user',
+            'table'  => 'user_song',
+        ));
     }
 }

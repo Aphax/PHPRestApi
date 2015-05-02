@@ -24,7 +24,7 @@ class User extends RestController {
      */
     public function create(array $params)
     {
-        if (!strpos($params['email'], '@')) {
+        if (!isset($params['email']) || !strpos($params['email'], '@')) {
             throw new RestServerForbiddenException('Paramètres d\'ajout utilisateur invalides');
         }
         parent::create($params);

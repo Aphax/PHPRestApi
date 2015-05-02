@@ -69,12 +69,19 @@ class RestServer {
                 $call_parameters = array($this->getResourceId());
                 break;
             case 'POST':
-                $call = array($this->getController(), 'create');
                 $parameters = $_POST;
                 if (empty($parameters)) {
                     throw new RestServerForbiddenException("Accès refusé : Aucune données transmises pour crée la ressource");
                 }
                 $call_parameters = array($parameters);
+                // Parent resource ID specified, relational creation
+                if ($this->getResourceId() !== NULL) {
+                    $call = array($this->getController(), 'createRelational');
+                    $call_parameters[] = $this->getResourceId();
+                // Simple creation
+                } else {
+                    $call = array($this->getController(), 'create');
+                }
                 break;
             case 'PUT':
                 $parameters = array();
@@ -89,11 +96,17 @@ class RestServer {
                 $call_parameters = array($this->getResourceId(), $parameters);
                 break;
             case 'DELETE':
-                $call = array($this->getController(), 'delete');
                 if ($this->getResourceId() == NULL) {
                     throw new RestServerForbiddenException("Accès refusé : Aucun Id spécifié pour supprimer la ressource");
                 }
                 $call_parameters = array($this->getResourceId());
+                $childModel = $this->getRelationalResource(1);
+                if ($childModel !== null) {
+                    $call = array($this->getController(), 'deleteRelational');
+                    $call_parameters[] = $childModel;
+                } else {
+                    $call = array($this->getController(), 'delete');
+                }
                 break;
             default:
                 throw new \HttpMalformedHeadersException("La méthode HTTP utilisée n'est pas compatible.");
@@ -130,6 +143,24 @@ class RestServer {
             return new $controller($this);
         }
         return NULL;
+    }
+
+    /**
+     * @param $depth
+     * @return \Aphax\models\Model
+     * @throws RestServerNotFoundException
+     */
+    public function getRelationalResource($depth)
+    {
+        // Get a list of child resources like /parent/id/child
+        if ($this->getUriPart($depth*2) !== NULL) {
+            $child = '\Aphax\models\\' . lcfirst($this->getUriPart($depth*2));
+            if (!class_exists($child)) {
+                throw new RestServerNotFoundException();
+            }
+            return new $child();
+        }
+        return null;
     }
 
     /**

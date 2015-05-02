@@ -10,6 +10,7 @@ namespace Aphax\controllers;
 
 use Aphax\exceptions\RestServerForbiddenException;
 use Aphax\exceptions\RestServerNotFoundException;
+use Aphax\models\Model;
 use Aphax\RestServer;
 
 /**
@@ -20,7 +21,7 @@ abstract class RestController {
     /**
      * @var RestServer
      */
-    private $server;
+    protected $server;
 
     /**
      * @var
@@ -36,7 +37,7 @@ abstract class RestController {
     }
 
     /**
-     * @return \Aphax\models\Model
+     * @return Model
      */
     public function getModel()
     {
@@ -46,24 +47,34 @@ abstract class RestController {
         return $this->model;
     }
 
-
     /**
      * @param array $data
-     * @throws RestServerForbiddenException
      */
     public function create(array $data)
     {
         $model = $this->getModel();
-        $fields = $model->getFields();
-        unset($fields[$model->getPrimaryKey()]);
-        foreach ($fields as $name => $params) {
-            if (!isset($data[$name])) {
-                throw new RestServerForbiddenException("Données $name manquante pour l'ajout de l'entité");
+
+        foreach ($model->getFields() as $name => $params) {
+            if (isset($data[$name])) {
+                $model->setFieldValue($name, $data[$name]);
             }
-            $model->setFieldValue($name, $data[$name]);
         }
         $model->create();
         $this->server->appendResponse($model->getTableName(), $model->getFieldsValues());
+    }
+
+    /**
+     * @param array $data
+     * @param $parentId : In case of relationship resource creation, id of the parent resource
+     * @throws RestServerForbiddenException
+     * @throws RestServerNotFoundException
+     */
+    public function createRelational(array $data, $parentId)
+    {
+        $childModel = $this->server->getRelationalResource(1);
+        $parentModel = $this->getModel();
+        $parentModel->setFieldValue($parentModel->getPrimaryKey(), $parentId);
+        $this->server->appendResponse('success', $childModel->createRelational($data, $parentModel));
     }
 
     /**
@@ -73,19 +84,15 @@ abstract class RestController {
      */
     public function read($id)
     {
-        $model = $this->getModel();
+        $childModel = $this->server->getRelationalResource(1);
+        $parentModel = $this->getModel();
+        $parentModel->read($id);
 
         // Get a list of child resources like /parent/id/child
-        if ($this->server->getUriPart(2) !== NULL) {
-            $child = '\Aphax\models\\' . lcfirst($this->server->getUriPart(2));
-            if (!class_exists($child)) {
-                throw new RestServerNotFoundException();
-            }
-            $child = new $child();
-            $this->server->appendResponse(lcfirst($child->getTableName()), $model->getManyToManyChilds($id, $child));
+        if ($childModel !== NULL) {
+            $this->server->appendResponse(lcfirst($childModel->getTableName()), $parentModel->getChilds($childModel));
         } else {
-            $model->read($id);
-            $this->server->appendResponse(lcfirst($model->getTableName()), $model->getFieldsValues());
+            $this->server->appendResponse(lcfirst($parentModel->getTableName()), $parentModel->getFieldsValues());
         }
     }
 
@@ -96,6 +103,7 @@ abstract class RestController {
      */
     public function update($id, array $data)
     {
+        $this->server->appendResponse('data', $data);
         $model = $this->getModel();
         $model->read($id);
         $fields = $model->getFields();
@@ -117,5 +125,16 @@ abstract class RestController {
         $model->read($id);
         $this->server->appendResponse('deleted', $model->getFieldsValues());
         $model->delete($id);
+    }
+
+    /**
+     * @param $id : Parent model id
+     * @param Model $childModel
+     */
+    public function deleteRelational($id, Model $childModel)
+    {
+        $parentModel = $this->getModel();
+        $parentModel->read($id);
+        $this->server->appendResponse('deleted', $childModel->deleteRelational($parentModel));
     }
 }

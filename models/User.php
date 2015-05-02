@@ -8,7 +8,8 @@
 
 namespace Aphax\models;
 
-class User extends Model {
+class User extends Model
+{
     function __construct()
     {
         parent::__construct();
@@ -17,5 +18,9 @@ class User extends Model {
         $this->addField('email', 'string');
         $this->setPrimaryKey('user_id');
         $this->setTableName('user');
+        $this->setManyToMany(array(
+            'target' => 'song',
+            'table'  => 'user_song',
+        ));
     }
 }
