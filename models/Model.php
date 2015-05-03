@@ -132,10 +132,13 @@ abstract class Model
     {
         switch ($relatedModel->getRelationalType($this)) {
             case 'n:n':
-                return self::$db->exec('DELETE FROM `' . $relatedModel->getRelationalTable($this) . '`'.
-                    'WHERE `' . $this->getPrimaryKey() . '`=' . $this->getPrimaryKeyValue() .
-                    'AND `' . $relatedModel->getPrimaryKey() . '`=' . $relatedModel->getPrimaryKeyValue()
-                );
+                $statement = 'DELETE FROM `' . $relatedModel->getRelationalTable($this) . '` ' .
+                    'WHERE `' . $this->getPrimaryKey() . '`=' . $this->getPrimaryKeyValue() . ' ' .
+                    'AND `' . $relatedModel->getPrimaryKey() . '`=' . $relatedModel->getPrimaryKeyValue();
+                global $server;
+                $server->appendResponse('deleteRelational.request', $statement);
+
+                return self::$db->exec($statement);
         }
     }
 

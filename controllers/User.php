@@ -15,7 +15,7 @@ class User extends RestController {
     function __construct(RestServer $server)
     {
         parent::__construct($server);
-        $this->model = new \Aphax\models\User();
+        $this->rootModel = new \Aphax\models\User();
     }
 
     /**

@@ -15,7 +15,8 @@ use Aphax\exceptions\RestServerNotFoundException;
  * Class RestServer
  * @package Aphax
  */
-class RestServer {
+class RestServer
+{
     /**
      * Parts of the uri string between slashes
      * @var array
@@ -38,7 +39,7 @@ class RestServer {
         }
 
         $uri = $_SERVER['REQUEST_URI'];
-        $uri = str_replace(dirname($_SERVER['PHP_SELF']).'/', '', $uri);
+        $uri = str_replace(dirname($_SERVER['PHP_SELF']) . '/', '', $uri);
         if (!empty($uri)) {
             $this->uriparts = explode("/", $uri);
         }
@@ -62,9 +63,13 @@ class RestServer {
     {
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
-                $call = array($this->getController(), 'read');
-                if ($this->getResourceId() == NULL) {
+                if ($this->getResourceId() === NULL) {
                     throw new RestServerForbiddenException("Accès refusé : Aucun Id spécifié pour lire la ressource");
+                }
+                if ($this->getResourceRelationalModel() !== NULL) {
+                    $call = array($this->getController(), 'readRelational');
+                } else {
+                    $call = array($this->getController(), 'read');
                 }
                 $call_parameters = array($this->getResourceId());
                 break;
@@ -90,20 +95,19 @@ class RestServer {
                 if (empty($parameters)) {
                     throw new RestServerForbiddenException("Accès refusé : Aucune données transmises pour modifier la ressource");
                 }
-                if ($this->getResourceId() == NULL) {
+                if ($this->getResourceId() === NULL) {
                     throw new RestServerForbiddenException("Accès refusé : Aucun Id spécifié pour modifier la ressource");
                 }
                 $call_parameters = array($this->getResourceId(), $parameters);
                 break;
             case 'DELETE':
-                if ($this->getResourceId() == NULL) {
+                if ($this->getResourceId() === NULL) {
                     throw new RestServerForbiddenException("Accès refusé : Aucun Id spécifié pour supprimer la ressource");
                 }
                 $call_parameters = array($this->getResourceId());
-                $childModel = $this->getRelationalResource(1);
-                if ($childModel !== null) {
+                if ($this->getResourceRelationalId() !== NULL && $this->getResourceRelationalModel() != NULL) {
                     $call = array($this->getController(), 'deleteRelational');
-                    $call_parameters[] = $childModel;
+                    $call_parameters[] = $this->getResourceRelationalId();
                 } else {
                     $call = array($this->getController(), 'delete');
                 }
@@ -114,10 +118,11 @@ class RestServer {
 
         $this->appendResponse('debug', array(
             'controller' => $call[0],
-            'action' => $call[1],
+            'action'     => $call[1],
             'resourceId' => $this->getResourceId(),
+            'resourceRelationalId' => $this->getResourceRelationalId(),
             'parameters' => $this->getRequestParameters(),
-            'callable' => is_callable(array($call[0], $call[1]))
+            'callable'   => is_callable(array($call[0], $call[1]))
         ));
 
         if (is_callable($call)) {
@@ -135,32 +140,63 @@ class RestServer {
      */
     private function getController()
     {
-        if (!empty($this->uriparts[0])) {
-            $controller = '\Aphax\controllers\\'.ucfirst($this->uriparts[0]);
+        $part = $this->getUriPart(0);
+        if ($part !== NULL) {
+            $controller = '\Aphax\controllers\\' . ucfirst($part);
             if (!class_exists($controller)) {
                 throw new RestServerNotFoundException();
             }
+
             return new $controller($this);
         }
+
         return NULL;
     }
 
     /**
-     * @param $depth
      * @return \Aphax\models\Model
-     * @throws RestServerNotFoundException
      */
-    public function getRelationalResource($depth)
+    public function getResourceModel()
     {
-        // Get a list of child resources like /parent/id/child
-        if ($this->getUriPart($depth*2) !== NULL) {
-            $child = '\Aphax\models\\' . lcfirst($this->getUriPart($depth*2));
-            if (!class_exists($child)) {
-                throw new RestServerNotFoundException();
+        $part = $this->getUriPart(0);
+        if ($part !== NULL) {
+            $model = '\Aphax\models\\' . ucfirst($part);
+            if (class_exists($model)) {
+                /** @var \Aphax\models\Model $model */
+                $model = new $model();
+                $part = $this->getResourceId();
+                if ($part !== NULL) {
+                    $model->setFieldValue($model->getPrimaryKey(), $this->getUriPart(1));
+                }
+
+                return $model;
             }
-            return new $child();
         }
-        return null;
+
+        return NULL;
+    }
+
+    /**
+     * @return \Aphax\models\Model
+     */
+    public function getResourceRelationalModel()
+    {
+        $part = $this->getUriPart(2);
+        if ($part !== NULL) {
+            $model = '\Aphax\models\\' . ucfirst($part);
+            if (class_exists($model)) {
+                /** @var \Aphax\models\Model $model */
+                $model = new $model();
+                $part = $this->getResourceRelationalId();
+                if ($part !== NULL) {
+                    $model->setFieldValue($model->getPrimaryKey(), $this->getUriPart(1));
+                }
+
+                return $model;
+            }
+        }
+
+        return NULL;
     }
 
     /**
@@ -178,6 +214,7 @@ class RestServer {
     public function getResponse()
     {
         header('Content-type: text/json; charset=UTF-8');
+
         return json_encode($this->response);
     }
 
@@ -188,6 +225,7 @@ class RestServer {
     public function getResponseException(\Exception $e)
     {
         $this->appendResponse('error', $e->getMessage());
+
         return $this->getResponse();
     }
 
@@ -199,6 +237,7 @@ class RestServer {
     {
         header('HTTP/1.0 403 Forbidden');
         $this->appendResponse('error', $e->getMessage());
+
         return $this->getResponse();
     }
 
@@ -209,6 +248,7 @@ class RestServer {
     public function getResponseNotFound(RestServerNotFoundException $e)
     {
         header('HTTP/1.0 404 Not Found');
+
         return $this->getResponse();
     }
 
@@ -216,13 +256,18 @@ class RestServer {
      * Get the ID resource provided in the second uri part
      * @return null|string
      */
-    private function getResourceId()
+    public function getResourceId()
     {
-        // Resource Id is specified
-        if (isset($this->uriparts[1])) {
-            return $this->uriparts[1];
-        }
-        return NULL;
+        return $this->getUriPart(1);
+    }
+
+    /**
+     * Get the ID resource provided in the second uri part
+     * @return null|string
+     */
+    public function getResourceRelationalId()
+    {
+        return $this->getUriPart(3);
     }
 
     /**
@@ -234,6 +279,7 @@ class RestServer {
         if (isset($this->uriparts[$index])) {
             return $this->uriparts[$index];
         }
+
         return NULL;
     }
 

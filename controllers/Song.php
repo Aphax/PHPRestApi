@@ -15,6 +15,6 @@ class Song extends RestController {
     function __construct(RestServer $server)
     {
         parent::__construct($server);
-        $this->model = new \Aphax\models\Song();
+        $this->rootModel = new \Aphax\models\Song();
     }
 }
