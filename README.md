@@ -21,13 +21,13 @@ class Resource extends Model {
 
 ## 2. Resource methods access
 - READ resource : GET yourserver.path/resource/id
-- CREATE resource : POST yourserver.path/resource/
-- UPDATE resource : PUT yourserver.path/resource/
+- CREATE resource : POST yourserver.path/resource - {data}
+- UPDATE resource : PUT yourserver.path/resource/id - {data}
 - DELETE resource : DELETE yourserver.path/resource/id
 
 ## 3. Relational methods access
 - READ resource childs : GET yourserver.path/resource/id/child
-- ADD resource child : POST yourserver.path/resource/id/child
+- ADD resource child : POST yourserver.path/resource/id/child - {child_id}
 - REMOVE resource child : DELETE yourserver.path/resource/id/child/id
 
 ## 4. Controller support
