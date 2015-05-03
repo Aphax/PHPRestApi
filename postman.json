@@ -1,0 +1,368 @@
+{
+  "id": "c6d07fcd-2ec8-ed19-c39c-f642122c1aa8",
+  "name": "PHP REST Server API",
+  "description": "",
+  "order": [
+    "f9541fc1-af86-1850-82aa-a7bc9eba3e11",
+    "a40ccb5d-fd17-41d4-86b9-8b9a3d3cde30",
+    "9492c63d-0515-2390-a946-e9dcd319cb14",
+    "c6e81635-3f7f-08ae-603c-c42b26f36462",
+    "884f2ecd-4f96-4354-fbfd-873b82ad998a",
+    "9b603351-5d8d-ceb4-2314-c3764a5ac472",
+    "6f512c7c-23e8-e9ed-5bb6-6c8fd8ad8633",
+    "f66f3f2c-70b4-b6b9-387f-32d7b1ed4fd2",
+    "79fe1583-31da-0d97-2e99-df7bb5ab0ef5",
+    "8cc857f6-366f-d5e5-955f-63aa782492e3",
+    "793b6695-f360-ef78-f884-2299f81d93fa"
+  ],
+  "folders": [],
+  "timestamp": 1430563011573,
+  "synced": false,
+  "owner": "",
+  "subscribed": false,
+  "remoteLink": "",
+  "public": false,
+  "write": true,
+  "requests": [
+    {
+      "id": "6f512c7c-23e8-e9ed-5bb6-6c8fd8ad8633",
+      "headers": "",
+      "url": "{{SERVERROOT}}/song",
+      "pathVariables": {},
+      "preRequestScript": "",
+      "method": "POST",
+      "collectionId": "c6d07fcd-2ec8-ed19-c39c-f642122c1aa8",
+      "data": [
+        {
+          "key": "title",
+          "value": "Rivers Of Babylon",
+          "type": "text",
+          "enabled": true
+        },
+        {
+          "key": "duration",
+          "value": "118",
+          "type": "text",
+          "enabled": true
+        }
+      ],
+      "dataMode": "params",
+      "name": "CREATE Song C",
+      "description": "",
+      "descriptionFormat": "html",
+      "time": 1430646189394,
+      "version": 2,
+      "responses": [],
+      "tests": "",
+      "currentHelper": "normal",
+      "helperAttributes": {},
+      "collectionOwner": 0,
+      "synced": false
+    },
+    {
+      "id": "793b6695-f360-ef78-f884-2299f81d93fa",
+      "headers": "",
+      "url": "{{SERVERROOT}}/user/1/song/2",
+      "pathVariables": {},
+      "preRequestScript": "",
+      "method": "DELETE",
+      "collectionId": "c6d07fcd-2ec8-ed19-c39c-f642122c1aa8",
+      "data": [],
+      "dataMode": "urlencoded",
+      "name": "Delete User Song",
+      "description": "",
+      "descriptionFormat": "html",
+      "time": 1430645735265,
+      "version": 2,
+      "responses": [],
+      "tests": "",
+      "currentHelper": "normal",
+      "helperAttributes": {},
+      "collectionOwner": 0,
+      "synced": false
+    },
+    {
+      "id": "79fe1583-31da-0d97-2e99-df7bb5ab0ef5",
+      "headers": "",
+      "url": "{{SERVERROOT}}/user/1/song",
+      "pathVariables": {},
+      "preRequestScript": "",
+      "method": "POST",
+      "collectionId": "c6d07fcd-2ec8-ed19-c39c-f642122c1aa8",
+      "data": [
+        {
+          "key": "song_id",
+          "value": "1",
+          "type": "text",
+          "enabled": true
+        }
+      ],
+      "dataMode": "urlencoded",
+      "name": "ADD User's Song",
+      "description": "",
+      "descriptionFormat": "html",
+      "time": 1430584474965,
+      "version": 2,
+      "responses": [],
+      "tests": "",
+      "currentHelper": "normal",
+      "helperAttributes": {},
+      "collectionOwner": 0,
+      "synced": false
+    },
+    {
+      "id": "884f2ecd-4f96-4354-fbfd-873b82ad998a",
+      "headers": "",
+      "url": "{{SERVERROOT}}/song",
+      "pathVariables": {},
+      "preRequestScript": "",
+      "method": "POST",
+      "collectionId": "c6d07fcd-2ec8-ed19-c39c-f642122c1aa8",
+      "data": [
+        {
+          "key": "title",
+          "value": "Hit the Road Jack",
+          "type": "text",
+          "enabled": true
+        },
+        {
+          "key": "duration",
+          "value": "200",
+          "type": "text",
+          "enabled": true
+        }
+      ],
+      "dataMode": "params",
+      "name": "CREATE Song A",
+      "description": "",
+      "descriptionFormat": "html",
+      "time": 1430566795446,
+      "version": 2,
+      "responses": [],
+      "tests": "",
+      "currentHelper": "normal",
+      "helperAttributes": {},
+      "collectionOwner": 0,
+      "synced": false
+    },
+    {
+      "id": "8cc857f6-366f-d5e5-955f-63aa782492e3",
+      "headers": "",
+      "url": "{{SERVERROOT}}/user/1/song",
+      "pathVariables": {},
+      "preRequestScript": "",
+      "method": "GET",
+      "collectionId": "c6d07fcd-2ec8-ed19-c39c-f642122c1aa8",
+      "data": [
+        {
+          "key": "name",
+          "value": "Ray",
+          "type": "text",
+          "enabled": true
+        },
+        {
+          "key": "email",
+          "value": "ray@goodsound.com",
+          "type": "text",
+          "enabled": true
+        }
+      ],
+      "dataMode": "params",
+      "name": "READ User Songs",
+      "description": "",
+      "descriptionFormat": "html",
+      "time": 1430584751922,
+      "version": 2,
+      "responses": [],
+      "tests": "",
+      "currentHelper": "normal",
+      "helperAttributes": {},
+      "collectionOwner": 0,
+      "synced": false
+    },
+    {
+      "id": "9492c63d-0515-2390-a946-e9dcd319cb14",
+      "headers": "",
+      "url": "{{SERVERROOT}}/user/1",
+      "preRequestScript": "",
+      "pathVariables": {},
+      "method": "PUT",
+      "data": [
+        {
+          "key": "name",
+          "value": "Antoine Dupond",
+          "type": "text",
+          "enabled": true
+        },
+        {
+          "key": "email",
+          "value": "antoine@gmail.com",
+          "type": "text",
+          "enabled": true
+        },
+        {
+          "key": "ignored",
+          "value": "foo",
+          "type": "text",
+          "enabled": true
+        }
+      ],
+      "dataMode": "urlencoded",
+      "version": 2,
+      "tests": "",
+      "currentHelper": "normal",
+      "helperAttributes": {},
+      "time": 1430646103137,
+      "name": "UPDATE User",
+      "description": "",
+      "collectionId": "c6d07fcd-2ec8-ed19-c39c-f642122c1aa8",
+      "responses": [],
+      "synced": false
+    },
+    {
+      "id": "9b603351-5d8d-ceb4-2314-c3764a5ac472",
+      "headers": "",
+      "url": "{{SERVERROOT}}/song",
+      "pathVariables": {},
+      "preRequestScript": "",
+      "method": "POST",
+      "collectionId": "c6d07fcd-2ec8-ed19-c39c-f642122c1aa8",
+      "data": [
+        {
+          "key": "title",
+          "value": "I Got a Woman",
+          "type": "text",
+          "enabled": true
+        },
+        {
+          "key": "duration",
+          "value": "252",
+          "type": "text",
+          "enabled": true
+        }
+      ],
+      "dataMode": "params",
+      "name": "CREATE Song B",
+      "description": "",
+      "descriptionFormat": "html",
+      "time": 1430566837672,
+      "version": 2,
+      "responses": [],
+      "tests": "",
+      "currentHelper": "normal",
+      "helperAttributes": {},
+      "collectionOwner": 0,
+      "synced": false
+    },
+    {
+      "id": "a40ccb5d-fd17-41d4-86b9-8b9a3d3cde30",
+      "headers": "",
+      "url": "{{SERVERROOT}}/user/1",
+      "preRequestScript": "",
+      "pathVariables": {},
+      "method": "GET",
+      "data": [],
+      "dataMode": "params",
+      "version": 2,
+      "tests": "",
+      "currentHelper": "normal",
+      "helperAttributes": {},
+      "time": 1430566080149,
+      "name": "READ User",
+      "description": "",
+      "collectionId": "c6d07fcd-2ec8-ed19-c39c-f642122c1aa8",
+      "responses": [],
+      "synced": false
+    },
+    {
+      "id": "c6e81635-3f7f-08ae-603c-c42b26f36462",
+      "headers": "",
+      "url": "{{SERVERROOT}}/user/1",
+      "pathVariables": {},
+      "preRequestScript": "",
+      "method": "DELETE",
+      "collectionId": "c6d07fcd-2ec8-ed19-c39c-f642122c1aa8",
+      "data": [],
+      "dataMode": "params",
+      "name": "DELETE User",
+      "description": "",
+      "descriptionFormat": "html",
+      "time": 1430566635375,
+      "version": 2,
+      "responses": [],
+      "tests": "",
+      "currentHelper": "normal",
+      "helperAttributes": {},
+      "collectionOwner": 0,
+      "synced": false
+    },
+    {
+      "id": "f66f3f2c-70b4-b6b9-387f-32d7b1ed4fd2",
+      "headers": "",
+      "url": "{{SERVERROOT}}/song/1",
+      "pathVariables": {},
+      "preRequestScript": "",
+      "method": "GET",
+      "collectionId": "c6d07fcd-2ec8-ed19-c39c-f642122c1aa8",
+      "data": [
+        {
+          "key": "title",
+          "value": "I Got a Woman",
+          "type": "text",
+          "enabled": true
+        },
+        {
+          "key": "duration",
+          "value": "252",
+          "type": "text",
+          "enabled": true
+        }
+      ],
+      "dataMode": "params",
+      "name": "Read Song",
+      "description": "",
+      "descriptionFormat": "html",
+      "time": 1430642246706,
+      "version": 2,
+      "responses": [],
+      "tests": "",
+      "currentHelper": "normal",
+      "helperAttributes": {},
+      "collectionOwner": 0,
+      "synced": false
+    },
+    {
+      "id": "f9541fc1-af86-1850-82aa-a7bc9eba3e11",
+      "headers": "",
+      "url": "{{SERVERROOT}}/user",
+      "preRequestScript": "",
+      "pathVariables": {},
+      "method": "POST",
+      "data": [
+        {
+          "key": "name",
+          "value": "Pedro",
+          "type": "text",
+          "enabled": true
+        },
+        {
+          "key": "email",
+          "value": "pedro@gmail.com",
+          "type": "text",
+          "enabled": true
+        }
+      ],
+      "dataMode": "params",
+      "version": 2,
+      "tests": "",
+      "currentHelper": "normal",
+      "helperAttributes": {},
+      "time": 1430646033775,
+      "name": "CREATE User",
+      "description": "",
+      "collectionId": "c6d07fcd-2ec8-ed19-c39c-f642122c1aa8",
+      "responses": [],
+      "synced": false
+    }
+  ]
+}
